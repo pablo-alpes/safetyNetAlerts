@@ -1,6 +1,5 @@
 package com.safety.net.alerts.repository; //do i need also to expose to the level of project ?
 
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.safety.net.alerts.constants.JSONFile;
 import com.safety.net.alerts.model.PeopleAndClaims;
@@ -14,7 +13,7 @@ import java.io.IOException;
  *
  * @return PeopleList object with all the data from the JSON. It is sent to the Model to decouple by main Entities
  */
-public class JSONFileRetriever {
+public class ModelDAOImpl {
     public PeopleAndClaims getAll() {
         PeopleAndClaims peopleList = new PeopleAndClaims();
         try {

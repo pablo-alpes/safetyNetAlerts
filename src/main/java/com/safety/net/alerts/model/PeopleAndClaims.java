@@ -1,5 +1,8 @@
 package com.safety.net.alerts.model;
+import com.fasterxml.jackson.annotation.JsonMerge;
 import com.fasterxml.jackson.annotation.JsonProperty;
+
+import java.util.Collections;
 import java.util.List;
 
 public class PeopleAndClaims {
@@ -11,6 +14,7 @@ public class PeopleAndClaims {
     private List<MedicalRecords> medicalRecords;
 
     //getters and setters
+
     public List<Persons> getPeople() {
         return persons;
     }
