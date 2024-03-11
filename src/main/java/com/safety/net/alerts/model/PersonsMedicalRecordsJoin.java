@@ -1,5 +1,8 @@
 package com.safety.net.alerts.model;
 
+import com.fasterxml.jackson.annotation.JsonFilter;
+
+@JsonFilter("PersonsMergedFilter")
 public class PersonsMedicalRecordsJoin {
     private String firstName;
     private String lastName;

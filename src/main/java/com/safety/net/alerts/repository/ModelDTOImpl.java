@@ -2,10 +2,11 @@ package com.safety.net.alerts.repository;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.safety.net.alerts.model.Firestations;
-import com.safety.net.alerts.model.MedicalRecords;
-import com.safety.net.alerts.model.PeopleAndClaims;
-import com.safety.net.alerts.model.Persons;
+import com.fasterxml.jackson.databind.ser.FilterProvider;
+import com.fasterxml.jackson.databind.ser.impl.SimpleBeanPropertyFilter;
+import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
+import com.safety.net.alerts.model.*;
+import org.springframework.http.converter.json.MappingJacksonValue;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -37,6 +38,14 @@ public class ModelDTOImpl {
     public List<String> retrievePeopleWithMeds() {
         //lier avec la clé name-lastname
         return null;
+    }
+
+    public MappingJacksonValue filterFields(List<PersonsMedicalRecordsJoin> listToFilter, String... arg) { //arguments to filter out
+        SimpleBeanPropertyFilter columnsToKeep = SimpleBeanPropertyFilter.filterOutAllExcept(arg);
+        FilterProvider filters = new SimpleFilterProvider().addFilter("PersonsMergedFilter", columnsToKeep); //id filter is set manually, to evolve once others cases are going to be developed
+        MappingJacksonValue mapping = new MappingJacksonValue(listToFilter); //input merge table
+        mapping.setFilters(filters);
+        return mapping;
     }
 
 
