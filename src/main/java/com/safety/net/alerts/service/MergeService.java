@@ -1,10 +1,7 @@
 package com.safety.net.alerts.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.safety.net.alerts.model.MedicalRecords;
-import com.safety.net.alerts.model.PersonMedicalRecordsJoinMapper;
-import com.safety.net.alerts.model.Persons;
-import com.safety.net.alerts.model.PersonsMedicalRecordsJoin;
+import com.safety.net.alerts.model.*;
 import com.safety.net.alerts.repository.ModelDAOImpl;
 import com.safety.net.alerts.repository.ModelDTOImpl;
 import org.mapstruct.factory.Mappers;
@@ -24,6 +21,8 @@ public class MergeService {
     private ModelDAOImpl jsonData;
     private ModelDTOImpl modelDTOImpl;
     private PersonMedicalRecordsJoinMapper personsjoinmapper = Mappers.getMapper(PersonMedicalRecordsJoinMapper.class);
+
+    private FullJoinMapper fullJoinMapper = Mappers.getMapper(FullJoinMapper.class);
 
     /**
      * PeopleMedicalJoin Performs the merge of all existing json data in the file
@@ -70,4 +69,46 @@ public class MergeService {
             return -1;
         }
     }
+
+    /**
+     * FullJoin Performs the merge of all existing tables in the json file
+     * @params none
+     * @return List<FullJoin>
+     * @throws Exception
+     */
+    public List<FullJoin> FullJoin() throws Exception {
+        //Instantiation of models and data retrieval
+        modelDTOImpl = new ModelDTOImpl();
+        List<PersonsMedicalRecordsJoin> personsMedicalRecordsJoin = PeopleMedicalJoin();
+        List<Firestations> firestations = modelDTOImpl.retrieveAllFirestations();
+
+        // Process the list and filter based on the matching of keys address - station for each individual
+        return personsMedicalRecordsJoin.stream()
+                .map(person -> {
+                    int station = firestations.get(stationIdFinder(person.getAddress())).getStation(); //get id for which station correspond to the address person.getAddress()
+                    return fullJoinMapper.mergeRecord(person, station);
+                })
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * AddressIdFinder returns the ID for the firestation
+     * @param address
+     * @return int : id / -1 if not found
+     */
+    private int stationIdFinder(String address) {
+        List<Firestations> firestations = modelDTOImpl.retrieveAllFirestations();
+        int positionIndex = IntStream.range(0, firestations.size())
+                .filter(pos -> firestations.get(pos).getAddress().equals(address))
+                .findFirst() //assuming: an address has a single firestation allocated
+                .orElse(-1);
+
+        if (positionIndex >= 0) {
+            return positionIndex;
+        }
+        else {
+            return -1;
+        }
+    }
+
 }
