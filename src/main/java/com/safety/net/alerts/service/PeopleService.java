@@ -91,5 +91,18 @@ public class PeopleService {
                 .collect(Collectors.toList());
     }
 
+    /**
+     * People at specific address and determines which firestation services them
+     *
+     * @param station
+     * @return list of firestations serving
+     */
+    public List<FullJoin> peopleAtStation(int station) throws Exception {
+        //Instantiation of models and data retrieval
+        List<FullJoin> people = mergeService.FullJoin();
+        return people.stream()
+                .filter(person -> person.getStation() == station)
+                .collect(Collectors.toList());
+    }
 
 }

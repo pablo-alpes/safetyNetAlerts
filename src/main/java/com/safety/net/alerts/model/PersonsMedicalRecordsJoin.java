@@ -25,6 +25,17 @@ public class PersonsMedicalRecordsJoin {
     @JsonProperty("allergies")
     private Object allergies;
 
+    public String getPhone() {
+        return phone;
+    }
+
+    public void setPhone(String phone) {
+        this.phone = phone;
+    }
+
+    @JsonProperty("phone")
+    String phone;
+
 
     public String getFirstName() {
         return firstName;

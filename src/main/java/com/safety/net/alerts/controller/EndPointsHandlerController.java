@@ -100,4 +100,26 @@ public class EndPointsHandlerController {
         return mapping;
     }
 
+    @GetMapping(value = "/flood")
+    public MappingJacksonValue peopleByFirestation(@RequestParam int station) throws Exception {
+        modelDTOImpl = new ModelDTOImpl(); //by design we do reload the JSON each time
+
+        SimpleBeanPropertyFilter columnsToKeep = SimpleBeanPropertyFilter.serializeAll();
+        FilterProvider filters = new SimpleFilterProvider().addFilter("FullJoin", columnsToKeep); //id filter is set manually, to evolve once others cases are going to be developed
+        MappingJacksonValue mapping = new MappingJacksonValue(peopleService.peopleAtStation(station)); //input to run research
+        mapping.setFilters(filters);
+        return mapping;
+    }
+
+    @GetMapping(value = "/phoneAlert")
+    public MappingJacksonValue phoneByFirestation(@RequestParam int station) throws Exception {
+        modelDTOImpl = new ModelDTOImpl(); //by design we do reload the JSON each time
+
+        SimpleBeanPropertyFilter columnsToKeep = SimpleBeanPropertyFilter.filterOutAllExcept("phone");
+        FilterProvider filters = new SimpleFilterProvider().addFilter("FullJoin", columnsToKeep); //id filter is set manually, to evolve once others cases are going to be developed
+        MappingJacksonValue mapping = new MappingJacksonValue(peopleService.peopleAtStation(station)); //input to run research
+        mapping.setFilters(filters);
+        return mapping;
+    }
+
 }
