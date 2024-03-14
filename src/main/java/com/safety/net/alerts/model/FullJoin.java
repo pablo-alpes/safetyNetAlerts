@@ -2,15 +2,19 @@ package com.safety.net.alerts.model;
 
 import com.fasterxml.jackson.annotation.JsonFilter;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ser.FilterProvider;
 import com.fasterxml.jackson.databind.ser.impl.SimpleBeanPropertyFilter;
 import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
 import org.springframework.context.annotation.Configuration;
 
+import java.util.List;
+import java.util.Map;
 
-@JsonFilter("PersonsMergedFilter")
-public class PersonsMedicalRecordsJoin {
+@JsonFilter("FullJoin")
+@JsonPropertyOrder(value = {"firstName", "lastName","medications","allergies", "address", "phone"}, alphabetic = true)
+public class FullJoin {
     @JsonProperty("firstName")
     private String firstName;
     @JsonProperty("lastName")
@@ -23,12 +27,27 @@ public class PersonsMedicalRecordsJoin {
     private Object medications;
     @JsonProperty("allergies")
     private Object allergies;
+    @JsonProperty("station")
+    int station;
     @JsonProperty("phone")
     String phone;
+    @JsonProperty("peopleCount")
+    List<Map<String, Integer>> peopleCount;
+
+    public List<Map<String, Integer>> getPeopleCount() {
+        return peopleCount;
+    }
+
+    public void setPeopleCount(List<Map<String, Integer>> peopleCount) {
+        this.peopleCount = peopleCount;
+    }
+
+    public FullJoin() throws Exception { }
 
     public String getPhone() {
         return phone;
     }
+
     public void setPhone(String phone) {
         this.phone = phone;
     }
@@ -77,9 +96,15 @@ public class PersonsMedicalRecordsJoin {
         return allergies;
     }
 
+    public int getStation() { return station; }
+
+    public void setStation(int station) { this.station = station; }
+
     public void setAllergies(Object allergies) {
         this.allergies = allergies;
     }
+
+
     @Configuration
     //TODO -- Define the by default configuration for this filter (jackson filter)
     public class FilterConfiguration {

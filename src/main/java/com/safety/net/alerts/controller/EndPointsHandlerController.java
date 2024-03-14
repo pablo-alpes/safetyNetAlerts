@@ -11,6 +11,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.converter.json.MappingJacksonValue;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 @RestController
@@ -23,7 +25,6 @@ public class EndPointsHandlerController {
     public void setMyService2(PeopleService peopleService) {
         this.peopleService = peopleService;
     } //Injection of the Service
-
 
     @Autowired
     public void setMyService(MergeService mergeService) {
@@ -73,7 +74,7 @@ public class EndPointsHandlerController {
     @GetMapping(value = "/childAlert")
     public MappingJacksonValue childAtAddressAndFamily(@RequestParam String address) throws Exception {
         modelDTOImpl = new ModelDTOImpl(); //by design we do reload the JSON each time
-        List output = mergeService.PeopleMedicalJoin();
+        List output;
         output = peopleService.childrenAtAddress(address);
         if (output.isEmpty()) {
             return null; // no children in the address
@@ -89,7 +90,7 @@ public class EndPointsHandlerController {
      * @param address = string
      * @return given a specific address, then returns all families serviced by the firestation "int"
      */
-    @GetMapping(value = "/firestation")
+    @GetMapping(value = "/fire")
     public MappingJacksonValue firestation(@RequestParam String address) throws Exception {
         modelDTOImpl = new ModelDTOImpl(); //by design we do reload the JSON each time
 
@@ -101,12 +102,24 @@ public class EndPointsHandlerController {
     }
 
     @GetMapping(value = "/flood")
-    public MappingJacksonValue peopleByFirestation(@RequestParam int station) throws Exception {
+    public MappingJacksonValue peopleByFirestation(@RequestParam List<Integer> stations) throws Exception {
         modelDTOImpl = new ModelDTOImpl(); //by design we do reload the JSON each time
 
-        SimpleBeanPropertyFilter columnsToKeep = SimpleBeanPropertyFilter.serializeAll();
+        SimpleBeanPropertyFilter columnsToKeep = SimpleBeanPropertyFilter.serializeAllExcept("address","station","peopleCount");
         FilterProvider filters = new SimpleFilterProvider().addFilter("FullJoin", columnsToKeep); //id filter is set manually, to evolve once others cases are going to be developed
-        MappingJacksonValue mapping = new MappingJacksonValue(peopleService.peopleAtStation(station)); //input to run research
+        MappingJacksonValue mapping = new MappingJacksonValue(peopleService.peopleAtAddressWithFirestationGroupedByAddress((stations))); //input to run research
+        mapping.setFilters(filters);
+        return mapping;
+    }
+
+    @GetMapping(value = "/firestation")
+    public MappingJacksonValue peopleByASingleFirestation(@RequestParam int stationNumber) throws Exception {
+        modelDTOImpl = new ModelDTOImpl(); //by design we do reload the JSON each time
+
+        SimpleBeanPropertyFilter columnsToKeep = SimpleBeanPropertyFilter.serializeAllExcept("allergies","medications","birthdate", "peopleCount");
+        FilterProvider filters = new SimpleFilterProvider().addFilter("FullJoin", columnsToKeep); //id filter is set manually, to evolve once others cases are going to be developed
+
+        MappingJacksonValue mapping = new MappingJacksonValue(peopleService.peopleAtStation(stationNumber)); //input to run research
         mapping.setFilters(filters);
         return mapping;
     }

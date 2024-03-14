@@ -5,6 +5,7 @@ import com.safety.net.alerts.model.*;
 import com.safety.net.alerts.repository.ModelDAOImpl;
 import com.safety.net.alerts.repository.ModelDTOImpl;
 import org.mapstruct.factory.Mappers;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -14,15 +15,13 @@ import java.util.stream.IntStream;
 @Service
 public class MergeService {
     private ObjectMapper mapper = new ObjectMapper();
-
     public MergeService(ObjectMapper mapper) {
         this.mapper = mapper;
     }
     private ModelDAOImpl jsonData;
     private ModelDTOImpl modelDTOImpl;
-    private PersonMedicalRecordsJoinMapper personsjoinmapper = Mappers.getMapper(PersonMedicalRecordsJoinMapper.class);
-
     private FullJoinMapper fullJoinMapper = Mappers.getMapper(FullJoinMapper.class);
+    private PersonMedicalRecordsJoinMapper personsjoinmapper = Mappers.getMapper(PersonMedicalRecordsJoinMapper.class);
 
     /**
      * PeopleMedicalJoin Performs the merge of all existing json data in the file
@@ -30,7 +29,7 @@ public class MergeService {
      * @return void
      * @throws Exception
      */
-    public List<PersonsMedicalRecordsJoin> PeopleMedicalJoin() throws Exception {
+    public List<PersonsMedicalRecordsJoin> PeopleMedicalJoin()  {
         //Instantiation of models and data retrieval
         modelDTOImpl = new ModelDTOImpl();
         List<MedicalRecords> medicalRecords = modelDTOImpl.retrieveAllMedications();
@@ -76,7 +75,7 @@ public class MergeService {
      * @return List<FullJoin>
      * @throws Exception
      */
-    public List<FullJoin> FullJoin() throws Exception {
+    public List<FullJoin> FullJoin() {
         //Instantiation of models and data retrieval
         modelDTOImpl = new ModelDTOImpl();
         List<PersonsMedicalRecordsJoin> personsMedicalRecordsJoin = PeopleMedicalJoin();
@@ -86,7 +85,11 @@ public class MergeService {
         return personsMedicalRecordsJoin.stream()
                 .map(person -> {
                     int station = firestations.get(stationIdFinder(person.getAddress())).getStation(); //get id for which station correspond to the address person.getAddress()
-                    return fullJoinMapper.mergeRecord(person, station);
+                    try {
+                        return fullJoinMapper.mergeRecord(person, station);
+                    } catch (Exception e) {
+                        throw new RuntimeException(e);
+                    }
                 })
                 .collect(Collectors.toList());
     }

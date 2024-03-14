@@ -1,10 +1,14 @@
 package com.safety.net.alerts.model;
+import com.fasterxml.jackson.annotation.JsonAlias;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 import java.util.Date;
 import java.util.List;
 
 //{ "firstName":"John", "lastName":"Boyd", "birthdate":"03/06/1984", "medications":["aznol:350mg", "hydrapermazol:100mg"], "allergies":["nillacilan"] },
+
+
 public class MedicalRecords {
     public MedicalRecords() {
     }
@@ -20,11 +24,7 @@ public class MedicalRecords {
     Object allergies;
 
     //getters
-    public String getKey() {
-        return firstName + "-" + lastName;
-    }
-
-    public String getFirstName() {
+     public String getFirstName() {
         return firstName;
     }
 

@@ -4,7 +4,10 @@ import java.time.DateTimeException;
 import java.time.LocalDate;
 import java.time.Period;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.Locale;
+
+import static java.lang.Math.abs;
 
 public class CalculateAge {
 
@@ -15,13 +18,11 @@ public class CalculateAge {
             dateToConvert = LocalDate.parse(date, formatter.withLocale(Locale.getDefault()));
         }
         catch (DateTimeException e) { //handles the 2nd type of format found
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM/dd/yyyy");
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("M/dd/yyyy");
             dateToConvert = LocalDate.parse(date, formatter.withLocale(Locale.getDefault()));
         }
 
         Period period = Period.between(LocalDate.now(), dateToConvert);
-        int years = Math.abs(period.getYears());
-
-        return years;
+        return Math.abs(period.getYears());
     }
 }

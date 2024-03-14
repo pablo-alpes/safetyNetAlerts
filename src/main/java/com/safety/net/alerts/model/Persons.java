@@ -26,9 +26,6 @@ public class Persons {
 
 
     //getters & setters for each variable
-    private String getKey() {
-        return firstName + "-" + lastName;
-    }
 
     public String getAddress() {
         return address;
@@ -86,16 +83,5 @@ public class Persons {
         this.email = email;
     }
 
-    @Override
-    public String toString() {
-        return "persons:{" +
-                "firstName:" + firstName + "," +
-                "lastName:" + lastName + "," +
-                "address:" + address + "," +
-                "city:" + city + "," +
-                "zip:" + zip + "," +
-                "phone:" + phone + "," +
-                "email:" + email + "}";
-    }
 
 }
