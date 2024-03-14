@@ -7,16 +7,19 @@ request and response formats, authentication requirements, and other important d
 Net Alerts API.
 
 <!-- TOC -->
-    Safety Alerts Documentation
+### Table of Contents
   * [Base URL](#base-url)
     * [Authentication](#authentication)
   * [Available endpoints](#available-endpoints)
+  * [GET](#get)
     * [Person Information](#person-information)
     * [Community Email List](#community-email-list)
     * [Child Alert](#child-alert)
     * [Firestation Information](#firestation-information)
     * [Flood Information](#flood-information)
     * [Phone Alert](#phone-alert)
+  * [CRUD (Update, Delete, Add)](#crud-update-delete-add)
+    * 
   * [Response Format](#response-format)
   * [Error Handling](#error-handling)
   * [Getting Help](#getting-help)
@@ -34,6 +37,7 @@ Authorization header of your HTTP requests.
 ### Person Information
 
 * Endpoint: /api/personInfo?firstName=string&lastName=string
+
 * Method: GET
 * Description: Retrieves information for an individual based on the provided first name and last name.
 * Parameters:
