@@ -210,7 +210,7 @@ class SafetyNetAlertsIT {
             @DisplayName("3/7 phonelert - phone numbers - http://localhost:8080/phoneAlert?firestation=<firestation_number>\n" +
                     "Cette url doit retourner une liste des")
             void testGetRequest_EndPoint3_UP(int station) {
-                String url = "http://localhost:" + port + "/phoneAlert?firestation=" + station;
+                String url = "http://localhost:" + port + "/phoneAlert?station=" + station;
                 String response = restTemplate.getForObject(url, String.class);
                 System.out.println(response);
                 assertNotNull(response);

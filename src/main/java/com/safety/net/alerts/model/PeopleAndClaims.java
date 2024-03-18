@@ -1,10 +1,13 @@
 package com.safety.net.alerts.model;
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.JsonFilter;
 import com.fasterxml.jackson.annotation.JsonMerge;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.util.Collections;
 import java.util.List;
 
+@JsonFilter("Original")
 public class PeopleAndClaims {
     @JsonProperty("persons")
     private List<Persons> persons;

@@ -10,8 +10,18 @@ import java.util.List;
 
 
 public class MedicalRecords {
+
+    public MedicalRecords(String firstName, String lastName, String birthdate, Object medications, Object allergies) {
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.birthdate = birthdate;
+        this.medications = medications;
+        this.allergies = allergies;
+    }
+
     public MedicalRecords() {
     }
+
     @JsonProperty("firstName")
     String firstName;
     @JsonProperty("lastName")
@@ -24,7 +34,8 @@ public class MedicalRecords {
     Object allergies;
 
     //getters
-     public String getFirstName() {
+
+    public String getFirstName() {
         return firstName;
     }
 

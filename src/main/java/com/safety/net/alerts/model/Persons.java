@@ -1,13 +1,24 @@
 package com.safety.net.alerts.model;
 import com.fasterxml.jackson.annotation.JsonFilter;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import org.apache.el.stream.Stream;
 
 /**
  * @return Persons.getFirstName() and so on so forth
  */
 @JsonFilter("PersonsFilter")
 public class Persons {
+
+    public Persons(String firstName, String lastName, String address, String city, String zip, String phone, String email) {
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.address = address;
+        this.city = city;
+        this.zip = zip;
+        this.phone = phone;
+        this.email = email;
+    }
+
+    public Persons() {}
     @JsonProperty("firstName")
     String firstName;
     @JsonProperty("lastName")
@@ -22,8 +33,6 @@ public class Persons {
     String phone;
     @JsonProperty("email")
     String email;
-    public Persons() {}
-
 
     //getters & setters for each variable
 
@@ -82,6 +91,5 @@ public class Persons {
     public void setEmail(String email) {
         this.email = email;
     }
-
 
 }

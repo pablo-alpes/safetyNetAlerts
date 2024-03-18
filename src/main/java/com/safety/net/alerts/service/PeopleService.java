@@ -108,7 +108,7 @@ public class PeopleService {
     }
 
     /**
-     * Chjildren at station = age <= 18
+     * Children at station = age <= 18
      *
      * @param station
      * @return list

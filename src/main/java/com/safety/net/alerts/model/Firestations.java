@@ -11,6 +11,11 @@ public class Firestations {
     @JsonProperty("station")
     int station;
 
+    public Firestations(String address, int station) {
+        this.address = address;
+        this.station = station;
+    }
+
     //getters
     public String getAddress() {
         return address;

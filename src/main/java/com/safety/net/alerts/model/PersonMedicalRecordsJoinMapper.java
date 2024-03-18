@@ -16,10 +16,14 @@ public interface PersonMedicalRecordsJoinMapper {
     @Mapping(source = "medicalRecord.medications", target = "medications")
     @Mapping(source = "medicalRecord.allergies", target = "allergies")
     PersonsMedicalRecordsJoin mergeRecord(MedicalRecords medicalRecord, Persons person);
+
     @Named("age")
     public static int age(String birthdate){
         return new CalculateAge().convertDate(birthdate);
     }
+
+
+
 }
 
 

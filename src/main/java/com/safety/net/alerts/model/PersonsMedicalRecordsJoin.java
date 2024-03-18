@@ -80,6 +80,19 @@ public class PersonsMedicalRecordsJoin {
     public void setAllergies(Object allergies) {
         this.allergies = allergies;
     }
+
+    public PersonsMedicalRecordsJoin(String firstName, String lastName, String address, String birthdate, Object medications, Object allergies) {
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.address = address;
+        this.birthdate = birthdate;
+        this.medications = medications;
+        this.allergies = allergies;
+        this.phone = phone;
+    }
+
+    public PersonsMedicalRecordsJoin() { }
+
     @Configuration
     //TODO -- Define the by default configuration for this filter (jackson filter)
     public class FilterConfiguration {

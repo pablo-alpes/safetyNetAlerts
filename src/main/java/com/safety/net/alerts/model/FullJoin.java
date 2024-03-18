@@ -42,8 +42,6 @@ public class FullJoin {
         this.peopleCount = peopleCount;
     }
 
-    public FullJoin() throws Exception { }
-
     public String getPhone() {
         return phone;
     }
@@ -104,6 +102,19 @@ public class FullJoin {
         this.allergies = allergies;
     }
 
+    public FullJoin(String firstName, String lastName, String address, String birthdate, Object medications, Object allergies, int station, String phone, List<Map<String, Integer>> peopleCount, String id) {
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.address = address;
+        this.birthdate = birthdate;
+        this.medications = medications;
+        this.allergies = allergies;
+        this.station = station;
+        this.phone = phone;
+        this.peopleCount = peopleCount;
+    }
+
+    public FullJoin() { }
 
     @Configuration
     //TODO -- Define the by default configuration for this filter (jackson filter)

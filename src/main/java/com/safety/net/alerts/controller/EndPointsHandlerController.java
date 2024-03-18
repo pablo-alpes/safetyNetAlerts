@@ -7,10 +7,13 @@ import com.safety.net.alerts.model.FullJoin;
 import com.safety.net.alerts.repository.ModelDTOImpl;
 import com.safety.net.alerts.service.MergeService;
 import com.safety.net.alerts.service.PeopleService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.converter.json.MappingJacksonValue;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -77,7 +80,7 @@ public class EndPointsHandlerController {
         List output;
         output = peopleService.childrenAtAddress(address);
         if (output.isEmpty()) {
-            return null; // no children in the address
+            return new MappingJacksonValue(null); // no children in the address
         }
         else {
             output.add(peopleService.famillyAtAddress(address));
@@ -134,5 +137,92 @@ public class EndPointsHandlerController {
         mapping.setFilters(filters);
         return mapping;
     }
+
+    //CRUD operations
+    // Flow: Controller calls -> Service (calls) -> DAO/DTO and
+
+        /**
+            * ------------------------------
+            * PERSON
+    */
+
+    // Save operation
+    @PostMapping(value="/person{id}")
+    public void personSaveRecord(
+            @RequestBody Object object
+    ) {}
+
+    //Delete Operation
+    @DeleteMapping(value="/person/{firstName}" +"&"+ "{lastName}")
+    public void personDeleteRecord(
+            @PathVariable("firstName") String firstName, @PathVariable("lastName") String lastName
+    ) throws IOException {
+        modelDTOImpl = new ModelDTOImpl(); //by design we do reload the JSON each time
+        modelDTOImpl.deleteRecord(firstName, lastName);
+    }
+
+
+    //Update Operation
+    @PutMapping(value="/person/{id}")
+    public void personUpdateRecord(
+            @RequestBody Object object,
+            @PathVariable("id") int id
+    ) {}
+
+    /**
+     * ------------------------------
+     * FIRESTATION
+     */
+
+
+    // Save operation
+    @PostMapping("firestation/")
+    public void firestationSaveRecord(
+            @RequestBody Object object
+    ) {}
+
+    //Delete Operation
+    @DeleteMapping("firestation/{id}")
+    public void firestationDeleteRecord(
+            @PathVariable("id")
+            int id
+    ) {}
+
+
+    //Update Operation
+    @PutMapping("firestation/{id}")
+    public void firestationUpdateRecord(
+            @RequestBody Object object,
+            @PathVariable("id") int id
+    ) {}
+
+
+    /**
+     * ------------------------------
+     * MEDICAL
+     */
+
+
+    // Save operation
+    @PostMapping("medicalRecord/")
+    public void medicalSaveRecord(
+            @RequestBody Object object
+    ) {}
+
+    //Delete Operation
+    @DeleteMapping("medicalRecord/{id}")
+    public void medicalDeleteRecord(
+            @PathVariable("id")
+            int id
+    ) {}
+
+
+    //Update Operation
+    @PutMapping("medicalRecord/{id}")
+    public void medicalUpdateRecord(
+            @RequestBody Object object,
+            @PathVariable("id") int id
+    ) {}
+
 
 }
