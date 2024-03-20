@@ -11,6 +11,7 @@ import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
 import com.safety.net.alerts.constants.JSONFile;
 import com.safety.net.alerts.model.*;
 import org.springframework.http.converter.json.MappingJacksonValue;
+import org.springframework.stereotype.Service;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -22,6 +23,7 @@ import java.io.IOException;
  *
  * @return PeopleList object with all the data from the JSON. It is sent to the Model to decouple by main Entities
  */
+@Service
 public class ModelDAOImpl {
     //Object Instantiations
     PeopleAndClaims peopleList = new PeopleAndClaims();

@@ -30,6 +30,7 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+//some tests correspond to ordered list of data, if non ordered, expected results shall change. to do another test with the inception of this second file to check the records are well processed despite this fact.
 @SpringBootTest
 @ContextConfiguration(classes = SafetyNetAlertsApplication.class)
 class SafetyNetAlertsApplicationTests {
@@ -67,7 +68,7 @@ class SafetyNetAlertsApplicationTests {
 		peopleList.setMedicalRecords(medicalRecord); // we update the whole list
 
 		//ACT
-		mapper.writeValue(new File("data.json"), peopleList);
+		mapper.writeValue(new File("./src/dataTest.json"), peopleList);
 
 		//the object is saved to the mapper
 		assert(true);
@@ -124,14 +125,14 @@ class SafetyNetAlertsApplicationTests {
 		List<FullJoin> people = mergeService.FullJoin();
 		PeopleService peopleService = new PeopleService();
 		System.out.println(peopleService.countAdults(1));
-		System.out.println(peopleService.countChildren(1));
+		//System.out.println(peopleService.countChildren(1));
 	}
 
 	@Test
 	@DisplayName("Determines the MedicalID for a person in the list or not")
 	void medicalIDTest() {
 		assertEquals(modelDTOImpl.medicalID("Pablo", "Miranda"),-1);
-		assertEquals(modelDTOImpl.medicalID("John", "Boyd"), 0);
+		assertEquals(0, modelDTOImpl.medicalID("John", "Boyd"));
 	}
 	@Test
 	@DisplayName("Determines the PersonID in the list or not")

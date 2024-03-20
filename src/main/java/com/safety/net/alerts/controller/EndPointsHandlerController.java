@@ -1,9 +1,14 @@
 package com.safety.net.alerts.controller;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ser.FilterProvider;
 import com.fasterxml.jackson.databind.ser.impl.SimpleBeanPropertyFilter;
 import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
+import com.safety.net.alerts.model.Firestations;
 import com.safety.net.alerts.model.FullJoin;
+import com.safety.net.alerts.model.MedicalRecords;
+import com.safety.net.alerts.model.Persons;
+import com.safety.net.alerts.repository.ModelDAOImpl;
 import com.safety.net.alerts.repository.ModelDTOImpl;
 import com.safety.net.alerts.service.MergeService;
 import com.safety.net.alerts.service.PeopleService;
@@ -20,9 +25,12 @@ import java.util.List;
 
 @RestController
 public class EndPointsHandlerController {
+    @Autowired
     private ModelDTOImpl modelDTOImpl; //by design we do reload the JSON each time
     private MergeService mergeService;
     private PeopleService peopleService;
+    @Autowired
+    private ModelDAOImpl jsonData;
 
     @Autowired
     public void setMyService2(PeopleService peopleService) {
@@ -76,15 +84,19 @@ public class EndPointsHandlerController {
      */
     @GetMapping(value = "/childAlert")
     public MappingJacksonValue childAtAddressAndFamily(@RequestParam String address) throws Exception {
-        modelDTOImpl = new ModelDTOImpl(); //by design we do reload the JSON each time
-        List output;
-        output = peopleService.childrenAtAddress(address);
-        if (output.isEmpty()) {
-            return new MappingJacksonValue(null); // no children in the address
+        try {
+            modelDTOImpl = new ModelDTOImpl(); //by design we do reload the JSON each time
+            List output;
+            output = peopleService.childrenAtAddress(address);
+            if (output.isEmpty()) {
+                return new MappingJacksonValue(null); // no children in the address
+            } else {
+                output.add(peopleService.famillyAtAddress(address));
+                return modelDTOImpl.filterFields(output, "firstName", "lastName", "birthdate");
+            }
         }
-        else {
-            output.add(peopleService.famillyAtAddress(address));
-            return modelDTOImpl.filterFields(output, "firstName", "lastName", "birthdate");
+        catch (Exception e) {
+            return null;
         }
     }
 
@@ -138,91 +150,98 @@ public class EndPointsHandlerController {
         return mapping;
     }
 
-    //CRUD operations
-    // Flow: Controller calls -> Service (calls) -> DAO/DTO and
+    //CRUD operations // Flow: Controller calls -> Service (calls) -> DAO/DTO and
 
-        /**
-            * ------------------------------
-            * PERSON
-    */
-
-    // Save operation
-    @PostMapping(value="/person{id}")
-    public void personSaveRecord(
-            @RequestBody Object object
-    ) {}
-
-    //Delete Operation
+    //DELETE OPERATIONS FOR EACH ENTITY
     @DeleteMapping(value="/person/{firstName}" +"&"+ "{lastName}")
     public void personDeleteRecord(
             @PathVariable("firstName") String firstName, @PathVariable("lastName") String lastName
     ) throws IOException {
-        modelDTOImpl = new ModelDTOImpl(); //by design we do reload the JSON each time
-        modelDTOImpl.deleteRecord(firstName, lastName);
+        //modelDTOImpl = new ModelDTOImpl(); //by design we do reload the JSON each time
+        jsonData.saveAll(modelDTOImpl.deleteRecord(1,firstName, lastName));
+    }
+
+    @DeleteMapping("/medicalRecord/{firstName}" + "&" + "{lastName}")
+    //finetune params parsing to rather have key vale http://localhost:8080/medicalRecord/Pablo&Miranda
+    //?parama=a&paramb=a
+    public void medicalDeleteRecord(
+            @PathVariable("firstName") String firstName, @PathVariable("lastName") String lastName
+    ) throws IOException {
+        //modelDTOImpl = new ModelDTOImpl();
+        jsonData.saveAll(modelDTOImpl.deleteRecord(3,firstName, lastName));
+    }
+
+    @DeleteMapping("/firestation/{param}")
+    public void firestationDeleteRecord(
+            @PathVariable("param")
+            String param
+    ) throws IOException {
+        //modelDTOImpl = new ModelDTOImpl();
+        jsonData.saveAll(modelDTOImpl.deleteRecord(2, param));
+    }
+
+    //UPDATE OPERATIONS FOR EACH ENTITY - PUT
+    @PutMapping(value="/medicalRecord", consumes = {"application/json"})
+    public void medicalUpdateRecord(
+            @RequestBody String medical
+    ) throws IOException {
+        ObjectMapper mapper = new ObjectMapper();
+        MedicalRecords medicalRecords = mapper.readValue(medical, MedicalRecords.class);
+        //modelDTOImpl = new ModelDTOImpl();
+        jsonData.saveAll(modelDTOImpl.updateRecord(3, medicalRecords.getFirstName(), medicalRecords.getLastName(), medicalRecords.getBirthdate(), medicalRecords.getMedications().toString(), medicalRecords.getAllergies().toString()));
+    }
+    @PutMapping(value="/firestation", consumes = {"application/json"}) //TODO -- REVIEW THE BUSINESS LOGIC.
+    public void firestationUpdateRecord(
+            @RequestBody String firestation
+    ) throws IOException {
+        ObjectMapper mapper = new ObjectMapper();
+        Firestations firestations = mapper.readValue(firestation, Firestations.class);
+        //modelDTOImpl = new ModelDTOImpl();
+        jsonData.saveAll(modelDTOImpl.updateRecord(2, firestations.getAddress(), String.valueOf(firestations.getStation())));
+        //{ "address":"1509 Culver St", "station":"3" },
+    }
+
+    @PutMapping(value="/person", consumes = {"application/json"})
+    public void personUpdateRecord(
+            @RequestBody String individual
+    ) throws IOException {
+        ObjectMapper mapper = new ObjectMapper();
+        Persons person = mapper.readValue(individual, Persons.class);
+        //modelDTOImpl = new ModelDTOImpl();
+        jsonData.saveAll(modelDTOImpl.updateRecord(1, person.getFirstName(), person.getLastName(), person.getAddress(), person.getCity(), person.getZip(), person.getPhone(), person.getEmail()));
     }
 
 
-    //Update Operation
-    @PutMapping(value="/person/{id}")
-    public void personUpdateRecord(
-            @RequestBody Object object,
-            @PathVariable("id") int id
-    ) {}
-
-    /**
-     * ------------------------------
-     * FIRESTATION
-     */
-
-
-    // Save operation
-    @PostMapping("firestation/")
-    public void firestationSaveRecord(
-            @RequestBody Object object
-    ) {}
-
-    //Delete Operation
-    @DeleteMapping("firestation/{id}")
-    public void firestationDeleteRecord(
-            @PathVariable("id")
-            int id
-    ) {}
-
-
-    //Update Operation
-    @PutMapping("firestation/{id}")
-    public void firestationUpdateRecord(
-            @RequestBody Object object,
-            @PathVariable("id") int id
-    ) {}
-
-
-    /**
-     * ------------------------------
-     * MEDICAL
-     */
-
-
-    // Save operation
-    @PostMapping("medicalRecord/")
+    //ADD OPERATION FOR EACH ENTITY - POST
+    @PostMapping(value="/medicalRecord", consumes = {"application/json"})
     public void medicalSaveRecord(
-            @RequestBody Object object
-    ) {}
+            @RequestBody String medical
+    ) throws IOException {
+        ObjectMapper mapper = new ObjectMapper();
+        MedicalRecords medicalRecords = mapper.readValue(medical, MedicalRecords.class);
+        //modelDTOImpl = new ModelDTOImpl();
+        jsonData.saveAll(modelDTOImpl.addRecord(3, medicalRecords.getFirstName(), medicalRecords.getLastName(), medicalRecords.getBirthdate(), medicalRecords.getMedications().toString(), medicalRecords.getAllergies().toString()));
+    }
+    @PostMapping(value="/firestation", consumes = {"application/json"})
+    public void firestationSaveRecord(
+            @RequestBody String firestation
+    ) throws IOException {
+        ObjectMapper mapper = new ObjectMapper();
+        Firestations firestations = mapper.readValue(firestation, Firestations.class);
+        //modelDTOImpl = new ModelDTOImpl();
+        jsonData.saveAll(modelDTOImpl.addRecord(2, firestations.getAddress(), String.valueOf(firestations.getStation())));
+    }
 
-    //Delete Operation
-    @DeleteMapping("medicalRecord/{id}")
-    public void medicalDeleteRecord(
-            @PathVariable("id")
-            int id
-    ) {}
-
-
-    //Update Operation
-    @PutMapping("medicalRecord/{id}")
-    public void medicalUpdateRecord(
-            @RequestBody Object object,
-            @PathVariable("id") int id
-    ) {}
-
+    @PostMapping(value="/person", consumes = {"application/json"})
+    public void personSaveRecord(
+            @RequestBody String individual
+    ) throws IOException {
+        ObjectMapper mapper = new ObjectMapper();
+        Persons person = mapper.readValue(individual, Persons.class);
+        //modelDTOImpl = new ModelDTOImpl();
+        jsonData.saveAll(modelDTOImpl.addRecord(1, person.getFirstName(), person.getLastName(), person.getAddress(), person.getCity(), person.getZip(), person.getPhone(), person.getEmail()));
+    }
 
 }
+
+

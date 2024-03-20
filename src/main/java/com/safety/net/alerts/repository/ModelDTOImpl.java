@@ -5,18 +5,22 @@ import com.fasterxml.jackson.databind.ser.FilterProvider;
 import com.fasterxml.jackson.databind.ser.impl.SimpleBeanPropertyFilter;
 import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
 import com.safety.net.alerts.model.*;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.converter.json.MappingJacksonValue;
+import org.springframework.stereotype.Service;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.List;
 import java.util.stream.IntStream;
 
-import static java.util.Locale.filter;
 
+@Service
 public class ModelDTOImpl {
     //Intialisation of instances
     private ObjectMapper mapper = new ObjectMapper();
     private PeopleAndClaims peopleList = new PeopleAndClaims();
+
     private ModelDAOImpl jsonData = new ModelDAOImpl();
 
     public List<Persons> retrieveAllPeople() {
@@ -51,23 +55,97 @@ public class ModelDTOImpl {
     }
 
     /**
-     * Performs deletion of the person firstName, lastName from the json and updates the change in the json file
-     * @param firstName
-     * @param lastName
+     * Performs deletion of the entity type people, firestation or meds for the given parameters and persists the operations into the json.
+     * @param int type
+     * @param String firstname, lastName or station/adress
      * @throws IOException
      * @returns void
      *
      */
-    public void deleteRecord(String firstName, String lastName) throws IOException {
-        List<Persons> people = retrieveAllPeople(); //we get all the objects in the Persons class
+    public PeopleAndClaims deleteRecord(int type, String... args) throws IOException {
+        int id;
+        switch (type) {
+            case 1: //people
+                List<Persons> people = retrieveAllPeople();
+                id = personID(args[0], args[1]); //id removal based on firstName lastName
+                if (id == -1) return null;
+                people.remove(id); //removal for the current retrieved list
+                peopleList.setPersons(people); // we update the whole list with the person that has been deleted
+                break;
+            case 2: //firestation
+                List<Firestations> firestations = retrieveAllFirestations();
+                id = stationID(args[0]); //id removal based address or station
+                if (id == -1) return null;
+                firestations.remove(id); //removal for the current retrieved list
+                peopleList.setFirestations(firestations);
+                break;
+            case 3: //meds
+                List<MedicalRecords> medicalRecords = retrieveAllMedications();
+                id = medicalID(args[0], args[1]); //id removal based on firstName lastName
+                if (id == -1) return null;
+                medicalRecords.remove(id); //removal for the current retrieved list
+                peopleList.setMedicalRecords(medicalRecords); // we update the whole list with the person that has been deleted
+                break;
+            default:
+                return null;
+        }
+        return peopleList;
+        //jsonData.saveAll(peopleList);
+    }
 
-        //id removal based on firstName lastName
-        int personIdentifier = personID(firstName, lastName);
-        if (personIdentifier == -1) return;
+    public PeopleAndClaims addRecord(int type, String... args) throws IOException {
+        switch (type) {
+            case 1: //people
+                List<Persons> people = retrieveAllPeople(); //we get all the objects in the Persons class, focus of the test
+                people.add(new Persons(args[0], args[1], args[2], args[3], args[4], args[5], args[6])); //ADDs the new record type Persons
+                peopleList.setPersons(people); // we update the whole list
+                break;
+            case 2: //firestation
+                List<Firestations> firestations = retrieveAllFirestations();
+                firestations.add(new Firestations(args[0], Integer.parseInt(args[1]))); //we add the new record type firestation
+                peopleList.setFirestations(firestations); // we update the whole list
+                break;
+            case 3: //meds
+                List<MedicalRecords> medicalRecords = retrieveAllMedications();
+                medicalRecords.add(new MedicalRecords(args[0], args[1], args[2], args[3], args[4])); //we add the new record type Medical
+                peopleList.setMedicalRecords(medicalRecords); // we update the whole list
+                break;
+            default:
+                return null;
+        }
+        return peopleList;
+        //jsonData.saveAll(peopleList);
+    }
 
-        people.remove(personIdentifier); //removal for the current retrieved list
-        peopleList.setPersons(people); // we update the whole list with the person that has been deleted
-        jsonData.saveAll(peopleList);
+    public PeopleAndClaims updateRecord(int type, String... args) throws IOException {
+        int id;
+        switch (type) {
+            case 1: //people
+                List<Persons> people = retrieveAllPeople();
+                id = personID(args[0], args[1]); //id removal based on firstName lastName
+                if (id == -1) return null;
+                people.set(id, new Persons(args[0], args[1], args[2], args[3], args[4], args[5], args[6])); //removal for the current retrieved list
+                peopleList.setPersons(people); // we update the whole list with the person that has been deleted
+                break;
+            case 2: //firestation
+                List<Firestations> firestations = retrieveAllFirestations();
+                id = stationID(args[0]); //id removal based address or station
+                if (id == -1) return null;
+                firestations.set(id, new Firestations(args[0], Integer.parseInt(args[1]))); //allows only for a change in the address for a specific station
+                peopleList.setFirestations(firestations);
+                break;
+            case 3: //meds
+                List<MedicalRecords> medicalRecords = retrieveAllMedications();
+                id = medicalID(args[0], args[1]); //id removal based on firstName lastName
+                if (id == -1) return null;
+                medicalRecords.set(id, new MedicalRecords(args[0], args[1], args[2], args[3], args[4])); //removal for the current retrieved list
+                peopleList.setMedicalRecords(medicalRecords); // we update the whole list with the person that has been deleted
+                break;
+            default:
+                return null;
+        }
+        return peopleList;
+        //jsonData.saveAll(peopleList);
     }
 
 
@@ -93,6 +171,21 @@ public class ModelDTOImpl {
                 .findFirst()
                 .orElse(-1);
         if (positionIndex >=0) {
+            return positionIndex;
+        }
+        else {
+            return -1;
+        }
+    }
+
+    public int stationID(String param) {
+        List<Firestations> firestations = retrieveAllFirestations();
+        int positionIndex = IntStream.range(0, firestations.size())
+                //.filter(index -> firestations.get(index).getAddress().equals(param) || (firestations.get(index).getStation() == Integer.parseInt(param)))
+                .filter(index -> firestations.get(index).getAddress().equals(param))
+                .findFirst()
+                .orElse(-1);
+        if (positionIndex >= 0) {
             return positionIndex;
         }
         else {
