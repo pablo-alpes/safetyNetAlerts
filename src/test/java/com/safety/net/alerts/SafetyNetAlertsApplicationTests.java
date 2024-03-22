@@ -27,8 +27,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 //some tests correspond to ordered list of data, if non ordered, expected results shall change. to do another test with the inception of this second file to check the records are well processed despite this fact.
 @SpringBootTest
@@ -54,7 +53,7 @@ class SafetyNetAlertsApplicationTests {
 
 		//ARRANGE -- Individual with or all the attributes to be added / updated / or / deleted
 		peopleList = new PeopleAndClaims();
-		peopleList = jsonData.getAll(); //we launch the retrieve of the json with all the info
+		peopleList = jsonData.getAllTest(); //we launch the retrieve of the json with all the info
 		List<Persons> people = modelDTOImpl.retrieveAllPeople(); //we get all the objects in the Persons class, focus of the test
 		people.add(new Persons("Pablo","Miranda","France","Paris","01020","0000","test@test.com")); //ADDs the new record type Persons
 		peopleList.setPersons(people); // we update the whole list
@@ -68,32 +67,14 @@ class SafetyNetAlertsApplicationTests {
 		peopleList.setMedicalRecords(medicalRecord); // we update the whole list
 
 		//ACT
-		mapper.writeValue(new File("./src/dataTest.json"), peopleList);
+		mapper.writeValue(new File("./src/main/resources/dataTest.json"), peopleList);
 
 		//the object is saved to the mapper
-		assert(true);
-	}
-
-	@Test
-	@DisplayName("Remove - Remove an individual for the service required ")
-	void removeIndividual_inPersonList() throws IOException { //test for the 3 entities for one individual
-		//For only one individual at the time
-
-		//ARRANGE -- Individual with or all the attributes to be added / updated / or / deleted
-		peopleList = new PeopleAndClaims();
-		peopleList = jsonData.getAll(); //we launch the retrieve of the json with all the info
-		List<Persons> people = modelDTOImpl.retrieveAllPeople(); //we get all the objects in the Persons class, focus of the test
-
-		//ACT - id removal based on firstName lastName
-		int personID = modelDTOImpl.personID("Jacob","Boyd");
-
-		people.remove(personID);
-		peopleList.setPersons(people); // we update the whole list with the person that has been deleted
-		mapper.writeValue(new File("./src/dataTest.json"), peopleList); //the object is saved to the mapper with the removal //Requires to check Exception if -1 if (personID == -1) return
-
-		//ASSERT
-		System.out.println(peopleList) ;
-		assert(true);
+		//assertNotNull(output); //verify si le fichier existe
+		peopleList = jsonData.getAllTest();
+		assertEquals(people.size(), 24);
+		assertEquals(firestation.size(), 14);
+		assertEquals(medicalRecord.size(), 24);
 	}
 
 	@Test
@@ -103,7 +84,7 @@ class SafetyNetAlertsApplicationTests {
 
 		//ARRANGE -- Individual retrieval
 		peopleList = new PeopleAndClaims();
-		peopleList = jsonData.getAll();
+		peopleList = jsonData.getAllTest();
 		List<Persons> people = modelDTOImpl.retrieveAllPeople(); //we get all the objects in the Persons class, focus of the test
 
 		//ACT - id record replacement based on firstName lastName
@@ -111,12 +92,42 @@ class SafetyNetAlertsApplicationTests {
 		people.set(personID, new Persons("Jacob","Boyd","France","Paris","01020","0000","test@test.com")); //Replaces the index of the object for the new info record
 		peopleList.setPersons(people); // we update the whole list with the updated record
 
-		mapper.writeValue(new File("./src/dataTest.json"), peopleList); //the object is saved to the mapper with the removal //Requires to check Exception if -1 if (personID == -1) return
+		//ACT
+		mapper.writeValue(new File("./src/main/resources/dataTest.json"), peopleList);
 
 		//ASSERT
-		System.out.println(peopleList) ;
-		assert(true);
+		peopleList = jsonData.getAllTest();
+		assertEquals(1, people.stream()
+				.filter(person -> person.getFirstName().equals("Jacob") && person.getLastName().equals("Boyd") && person.getAddress().equals("France"))
+				.count());
+
 	}
+
+	@Test
+	@DisplayName("Remove - Remove an individual for the service required ")
+	void removeIndividual_inPersonList() throws IOException { //test for the 3 entities for one individual
+		//For only one individual at the time
+
+		//ARRANGE -- Individual with or all the attributes to be added / updated / or / deleted
+		peopleList = new PeopleAndClaims();
+		peopleList = jsonData.getAllTest(); //we launch the retrieve of the json with all the info
+		List<Persons> people = modelDTOImpl.retrieveAllPeople(); //we get all the objects in the Persons class, focus of the test
+
+		//ACT - id removal based on firstName lastName
+		int personID = modelDTOImpl.personID("Jacob","Boyd");
+
+		people.remove(personID);
+		peopleList.setPersons(people); // we update the whole list with the person that has been deleted
+		//ACT
+		mapper.writeValue(new File("./src/main/resources/dataTest.json"), peopleList);
+
+		//ASSERT
+		peopleList = jsonData.getAllTest();
+		people = modelDTOImpl.retrieveAllPeople();
+		//1 individual less
+		assertEquals(people.size(), 23);
+	}
+
 
 	@Test
 	@DisplayName("Determines if the children Count and Adults are shown and correct")
@@ -124,25 +135,21 @@ class SafetyNetAlertsApplicationTests {
 		//Instantiation of models and data retrieval
 		List<FullJoin> people = mergeService.FullJoin();
 		PeopleService peopleService = new PeopleService();
-		System.out.println(peopleService.countAdults(1));
-		//System.out.println(peopleService.countChildren(1));
+		assertEquals(peopleService.countAdults(1), 5);
 	}
 
 	@Test
 	@DisplayName("Determines the MedicalID for a person in the list or not")
-	void medicalIDTest() {
+	void medicalIDTest() throws IOException {
 		assertEquals(modelDTOImpl.medicalID("Pablo", "Miranda"),-1);
 		assertEquals(0, modelDTOImpl.medicalID("John", "Boyd"));
 	}
 	@Test
 	@DisplayName("Determines the PersonID in the list or not")
-	void personIDTest() {
+	void personIDTest() throws IOException {
 		assertEquals(modelDTOImpl.personID("Pablo", "Miranda"),-1);
 		assertEquals(modelDTOImpl.personID("John", "Boyd"), 0);
 	}
-
-
-	//test with order and non ordered json file for merge results "data.json" and data2
 
 }
 

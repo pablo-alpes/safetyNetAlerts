@@ -23,17 +23,17 @@ public class ModelDTOImpl {
 
     private ModelDAOImpl jsonData = new ModelDAOImpl();
 
-    public List<Persons> retrieveAllPeople() {
+    public List<Persons> retrieveAllPeople() throws IOException {
         peopleList = jsonData.getAll();
         return peopleList.getPeople();
     }
 
-    public List<Firestations> retrieveAllFirestations() {
+    public List<Firestations> retrieveAllFirestations() throws IOException {
         peopleList = jsonData.getAll();
         return peopleList.getFirestations();
     }
 
-    public List<MedicalRecords> retrieveAllMedications() {
+    public List<MedicalRecords> retrieveAllMedications() throws IOException {
         peopleList = jsonData.getAll();
         return peopleList.getMedicalRecords();
     }
@@ -150,7 +150,7 @@ public class ModelDTOImpl {
 
 
     //returns the id pos in the list of the List<object> (person, station or medical record) for the individual. Serves to edit or delete the item.
-    public int personID(String firstName, String lastName) {
+    public int personID(String firstName, String lastName) throws IOException {
         List<Persons> persons = retrieveAllPeople();
         int positionIndex = IntStream.range(0,persons.size())
                 .filter(index -> persons.get(index).getFirstName().equals(firstName) && persons.get(index).getLastName().equals(lastName))
@@ -164,7 +164,7 @@ public class ModelDTOImpl {
         }
     }
 
-    public int medicalID(String firstName, String lastName) {
+    public int medicalID(String firstName, String lastName) throws IOException {
         List<MedicalRecords> medicalRecords = retrieveAllMedications();
         int positionIndex = IntStream.range(0, medicalRecords.size())
                 .filter(index -> medicalRecords.get(index).getFirstName().equals(firstName) && medicalRecords.get(index).getLastName().equals(lastName))
@@ -178,7 +178,7 @@ public class ModelDTOImpl {
         }
     }
 
-    public int stationID(String param) {
+    public int stationID(String param) throws IOException {
         List<Firestations> firestations = retrieveAllFirestations();
         int positionIndex = IntStream.range(0, firestations.size())
                 //.filter(index -> firestations.get(index).getAddress().equals(param) || (firestations.get(index).getStation() == Integer.parseInt(param)))

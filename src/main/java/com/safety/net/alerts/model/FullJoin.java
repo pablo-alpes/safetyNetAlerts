@@ -14,7 +14,7 @@ import java.util.Map;
 
 @JsonFilter("FullJoin")
 @JsonPropertyOrder(value = {"firstName", "lastName","medications","allergies", "address", "phone"}, alphabetic = true)
-public class FullJoin {
+public class FullJoin  {
     @JsonProperty("firstName")
     private String firstName;
     @JsonProperty("lastName")
@@ -101,6 +101,8 @@ public class FullJoin {
     public void setAllergies(Object allergies) {
         this.allergies = allergies;
     }
+
+
 
     public FullJoin(String firstName, String lastName, String address, String birthdate, Object medications, Object allergies, int station, String phone, List<Map<String, Integer>> peopleCount, String id) {
         this.firstName = firstName;

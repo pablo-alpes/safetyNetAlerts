@@ -7,12 +7,12 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.Collections;
 import java.util.List;
 
-@JsonFilter("Original")
 public class PeopleAndClaims {
     @JsonProperty("persons")
     private List<Persons> persons;
     @JsonProperty("firestations")
     private List<Firestations> firestations;
+
     @JsonProperty("medicalrecords")
     private List<MedicalRecords> medicalRecords;
 
@@ -27,6 +27,7 @@ public class PeopleAndClaims {
     public List<MedicalRecords> getMedicalRecords() {
         return medicalRecords;
     }
+    public List<Persons> getPersons() { return persons;    }
 
     public void setFirestations(List<Firestations> firestations) {
         this.firestations = firestations;
@@ -39,5 +40,13 @@ public class PeopleAndClaims {
     public void setPersons(List<Persons> persons) {
         this.persons = persons;
     }
+
+    public void setPeople(List<Persons> persons) {
+        this.persons = persons;
+    }
+
+
+
+
 }
 

@@ -5,16 +5,11 @@ import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.module.SimpleModule;
-import com.fasterxml.jackson.databind.ser.FilterProvider;
-import com.fasterxml.jackson.databind.ser.impl.SimpleBeanPropertyFilter;
-import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
 import com.safety.net.alerts.constants.JSONFile;
 import com.safety.net.alerts.model.*;
-import org.springframework.http.converter.json.MappingJacksonValue;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 
 /**
@@ -29,13 +24,15 @@ public class ModelDAOImpl {
     PeopleAndClaims peopleList = new PeopleAndClaims();
     ObjectMapper mapper = new ObjectMapper();
 
-    public PeopleAndClaims getAll() {
-        try {
-            //JSON to Java Object deserialisation to a List of Lists 
-            peopleList = mapper.readValue(new File(JSONFile.JSONDataPath), PeopleAndClaims.class);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+    public PeopleAndClaims getAll() throws IOException {
+        //JSON to Java Object deserialisation to a List of Lists
+         peopleList = mapper.readValue(new File(JSONFile.JSONDataPath), PeopleAndClaims.class);
+        return peopleList;
+    }
+
+    public PeopleAndClaims getAllTest() throws IOException {
+        //JSON to Java Object deserialisation to a List of Lists
+        peopleList = mapper.readValue(new File(JSONFile.JSONDataPathTest), PeopleAndClaims.class);
         return peopleList;
     }
 
@@ -45,7 +42,7 @@ public class ModelDAOImpl {
             module.addSerializer(PeopleAndClaims.class, new CustomPeopleAndClaimsSerializer());
             mapper.registerModule(module);
             mapper.writeValue(new File(JSONFile.JSONDataPath), people);
-        } catch (IOException e) {
+        } catch (IOException _) {
         }
     }
 

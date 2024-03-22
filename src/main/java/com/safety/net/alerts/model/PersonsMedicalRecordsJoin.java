@@ -81,6 +81,8 @@ public class PersonsMedicalRecordsJoin {
         this.allergies = allergies;
     }
 
+
+
     public PersonsMedicalRecordsJoin(String firstName, String lastName, String address, String birthdate, Object medications, Object allergies) {
         this.firstName = firstName;
         this.lastName = lastName;

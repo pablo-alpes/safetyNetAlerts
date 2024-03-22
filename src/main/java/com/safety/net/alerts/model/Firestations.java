@@ -33,6 +33,7 @@ public class Firestations {
         this.station = station;
     }
 
+
     public Firestations() {
     }
 }

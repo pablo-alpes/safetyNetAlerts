@@ -2,10 +2,13 @@ package com.safety.net.alerts.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.safety.net.alerts.model.FullJoin;
+import com.safety.net.alerts.model.Persons;
 import com.safety.net.alerts.model.PersonsMedicalRecordsJoin;
+import com.safety.net.alerts.repository.ModelDTOImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -21,9 +24,25 @@ public class PeopleService {
     private MergeService mergeService = new MergeService(mapper);
 
     @Autowired
-    public void setMyService(MergeService mergeService) {
+    public void setMergeService(MergeService mergeService) {
         this.mergeService = mergeService;
     } //Injection of the Service
+    /**
+     * Email at city
+     *
+     * @param city
+     *
+     * @return list
+     */
+    public List<Persons> emailsAtCity(String city) throws IOException {
+        //Instantiation of models and data retrieval
+        if (city == null) return null;
+        ModelDTOImpl modelDTOImpl = new ModelDTOImpl();
+        List<Persons> emails = modelDTOImpl.retrieveAllPeople();
+        return emails.stream()
+                .filter(mail -> city.equals(mail.getCity()))
+                .collect(toList());
+    }
 
     /**
      * Chjildren at address = age <= 18
@@ -31,7 +50,7 @@ public class PeopleService {
      * @param address
      * @return list
      */
-    public List<PersonsMedicalRecordsJoin> childrenAtAddress(String address) {
+    public List<PersonsMedicalRecordsJoin> childrenAtAddress(String address) throws IOException {
         //Instantiation of models and data retrieval
         List<PersonsMedicalRecordsJoin> people = mergeService.PeopleMedicalJoin();
         return people.stream()
@@ -46,7 +65,7 @@ public class PeopleService {
      * @param address
      * @return list
      */
-    public List<PersonsMedicalRecordsJoin> famillyAtAddress(String address) {
+    public List<PersonsMedicalRecordsJoin> famillyAtAddress(String address) throws IOException {
         //Instantiation of models and data retrieval
         List<PersonsMedicalRecordsJoin> people = mergeService.PeopleMedicalJoin();
         return people.stream()

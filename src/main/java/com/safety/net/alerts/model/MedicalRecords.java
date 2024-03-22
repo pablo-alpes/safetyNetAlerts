@@ -76,6 +76,8 @@ public class MedicalRecords {
         this.allergies = allergies;
     }
 
+
+
     /**verride
     public String toString() {
         return

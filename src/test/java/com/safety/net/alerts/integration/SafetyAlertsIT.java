@@ -6,16 +6,14 @@ import com.safety.net.alerts.SafetyNetAlertsApplication;
 import com.safety.net.alerts.model.*;
 import com.safety.net.alerts.repository.ModelDAOImpl;
 import com.safety.net.alerts.repository.ModelDTOImpl;
-import com.safety.net.alerts.service.CalculateAge;
+import com.safety.net.alerts.service.CalculateAgeService;
 import com.safety.net.alerts.service.MergeService;
 import com.safety.net.alerts.service.PeopleService;
-import org.hibernate.mapping.Any;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.mapstruct.factory.Mappers;
-import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -23,7 +21,6 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.http.MediaType;
-import org.springframework.http.converter.json.MappingJacksonValue;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
@@ -121,8 +118,8 @@ class SafetyNetAlertsIT {
                 String birthdateddmmyyyy = peopleList.getMedicalRecords().get(6).getBirthdate();
 
                 //ACT
-                int ageMMDDYYYY = new CalculateAge().convertDate(birthdateMddyyyy);
-                int ageDDMMYYYY = new CalculateAge().convertDate(birthdateddmmyyyy);
+                int ageMMDDYYYY = new CalculateAgeService().convertDate(birthdateMddyyyy);
+                int ageDDMMYYYY = new CalculateAgeService().convertDate(birthdateddmmyyyy);
 
                 //ASSERT - age calculation
                 assertEquals(59, ageMMDDYYYY);
@@ -149,7 +146,7 @@ class SafetyNetAlertsIT {
             //ACT
             //condition to testequality between keys
             personsjoin = personsjoinmapper.mergeRecord(medicalRecord, person);
-            int age = new CalculateAge().convertDate(medicalRecord.getBirthdate());
+            int age = new CalculateAgeService().convertDate(medicalRecord.getBirthdate());
 
             //ASSERT - Conversion and result of merge - Individuals of each side match and the new marged value is found
             assertEquals(personsjoin.getFirstName(), medicalRecord.getFirstName());
@@ -292,7 +289,7 @@ class SafetyNetAlertsIT {
                                 post("/person")
                                         .contentType(MediaType.APPLICATION_JSON)
                                         .content(mapperPerson.writeValueAsString(personToAdd)))//payload is a ficticious individual to add
-                        .andExpect(status().isOk());
+                        .andExpect(status().isCreated());
             }
 
             @Test
@@ -304,7 +301,7 @@ class SafetyNetAlertsIT {
                                 post("/medicalRecord")
                                         .contentType(MediaType.APPLICATION_JSON)
                                         .content(mapperPerson.writeValueAsString(medicalToAdd)))//payload is a ficticious individual to add
-                        .andExpect(status().isOk());
+                        .andExpect(status().isCreated());
             }
 
             @Test
@@ -316,7 +313,7 @@ class SafetyNetAlertsIT {
                                 post("/firestation")
                                         .contentType(MediaType.APPLICATION_JSON)
                                         .content(mapperPerson.writeValueAsString(firestationToAdd)))//payload is a ficticious individual to add
-                        .andExpect(status().isOk());
+                        .andExpect(status().isCreated());
             }
         }
 
@@ -355,7 +352,7 @@ class SafetyNetAlertsIT {
             }
 
             @ParameterizedTest
-            @ValueSource(strings = {"", "city"})
+            @ValueSource(strings = {"", "city", "Culver"})
             //checks with or without city parameters : so far this function and the whole program is insentive to this parameter
             @DisplayName("4/7 ENDPOINT - PEOPLE - Emails in the city")
             void testGetRequest_EndPoint4_UP(String city) {

@@ -1,9 +1,7 @@
 package com.safety.net.alerts.model;
 
-import com.safety.net.alerts.service.CalculateAge;
-import com.safety.net.alerts.service.PeopleService;
+import com.safety.net.alerts.service.CalculateAgeService;
 import org.mapstruct.Mapper;
-import org.mapstruct.MapperConfig;
 import org.mapstruct.Mapping;
 import org.mapstruct.Named;
 
@@ -19,7 +17,7 @@ public interface PersonMedicalRecordsJoinMapper {
 
     @Named("age")
     public static int age(String birthdate){
-        return new CalculateAge().convertDate(birthdate);
+        return new CalculateAgeService().convertDate(birthdate);
     }
 
 

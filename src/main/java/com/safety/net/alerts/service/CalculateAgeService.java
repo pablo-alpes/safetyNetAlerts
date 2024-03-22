@@ -4,12 +4,11 @@ import java.time.DateTimeException;
 import java.time.LocalDate;
 import java.time.Period;
 import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeParseException;
 import java.util.Locale;
 
 import static java.lang.Math.abs;
 
-public class CalculateAge {
+public class CalculateAgeService {
 
     public int convertDate(String date) throws DateTimeException {
         LocalDate dateToConvert;

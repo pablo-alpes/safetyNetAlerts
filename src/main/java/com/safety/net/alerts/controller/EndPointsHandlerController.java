@@ -4,23 +4,19 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ser.FilterProvider;
 import com.fasterxml.jackson.databind.ser.impl.SimpleBeanPropertyFilter;
 import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
-import com.safety.net.alerts.model.Firestations;
-import com.safety.net.alerts.model.FullJoin;
-import com.safety.net.alerts.model.MedicalRecords;
-import com.safety.net.alerts.model.Persons;
+import com.safety.net.alerts.model.*;
 import com.safety.net.alerts.repository.ModelDAOImpl;
 import com.safety.net.alerts.repository.ModelDTOImpl;
 import com.safety.net.alerts.service.MergeService;
 import com.safety.net.alerts.service.PeopleService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.json.MappingJacksonValue;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
+import java.net.URI;
 import java.util.List;
 
 @RestController
@@ -33,12 +29,12 @@ public class EndPointsHandlerController {
     private ModelDAOImpl jsonData;
 
     @Autowired
-    public void setMyService2(PeopleService peopleService) {
+    public void setPeopleService(PeopleService peopleService) {
         this.peopleService = peopleService;
     } //Injection of the Service
 
     @Autowired
-    public void setMyService(MergeService mergeService) {
+    public void setMergeService(MergeService mergeService) {
         this.mergeService = mergeService;
     } //Injection of the Service
 
@@ -66,12 +62,13 @@ public class EndPointsHandlerController {
      */
 
     @GetMapping("/communityEmail")
-    public MappingJacksonValue emailAllPeopleInCity(@RequestParam String city)  {
+    public MappingJacksonValue emailAllPeopleInCity(@RequestParam String city) throws IOException {
         modelDTOImpl = new ModelDTOImpl(); //by design we do reload the JSON each time
         //Defining the filter to apply -> to refactor towards the DTO
         SimpleBeanPropertyFilter filterEmail = SimpleBeanPropertyFilter.filterOutAllExcept("email"); //column to keep
         FilterProvider filters = new SimpleFilterProvider().addFilter("PersonsFilter", filterEmail);
-        MappingJacksonValue mapping = new MappingJacksonValue(modelDTOImpl.retrieveAllPeople());
+        //MappingJacksonValue mapping = new MappingJacksonValue(modelDTOImpl.retrieveAllPeople());
+        MappingJacksonValue mapping = new MappingJacksonValue(peopleService.emailsAtCity(city));
 
         mapping.setFilters(filters);
         return mapping;
@@ -89,7 +86,7 @@ public class EndPointsHandlerController {
             List output;
             output = peopleService.childrenAtAddress(address);
             if (output.isEmpty()) {
-                return new MappingJacksonValue(null); // no children in the address
+                return new MappingJacksonValue(""); // no children in the address
             } else {
                 output.add(peopleService.famillyAtAddress(address));
                 return modelDTOImpl.filterFields(output, "firstName", "lastName", "birthdate");
@@ -109,7 +106,7 @@ public class EndPointsHandlerController {
     public MappingJacksonValue firestation(@RequestParam String address) throws Exception {
         modelDTOImpl = new ModelDTOImpl(); //by design we do reload the JSON each time
 
-        SimpleBeanPropertyFilter columnsToKeep = SimpleBeanPropertyFilter.serializeAll();
+        SimpleBeanPropertyFilter columnsToKeep = SimpleBeanPropertyFilter.serializeAllExcept("peopleCount");
         FilterProvider filters = new SimpleFilterProvider().addFilter("FullJoin", columnsToKeep); //id filter is set manually, to evolve once others cases are going to be developed
         MappingJacksonValue mapping = new MappingJacksonValue(peopleService.peopleAtAddressWithFirestation(address)); //input to run research
         mapping.setFilters(filters);
@@ -162,7 +159,6 @@ public class EndPointsHandlerController {
     }
 
     @DeleteMapping("/medicalRecord/{firstName}" + "&" + "{lastName}")
-    //finetune params parsing to rather have key vale http://localhost:8080/medicalRecord/Pablo&Miranda
     //?parama=a&paramb=a
     public void medicalDeleteRecord(
             @PathVariable("firstName") String firstName, @PathVariable("lastName") String lastName
@@ -190,7 +186,7 @@ public class EndPointsHandlerController {
         //modelDTOImpl = new ModelDTOImpl();
         jsonData.saveAll(modelDTOImpl.updateRecord(3, medicalRecords.getFirstName(), medicalRecords.getLastName(), medicalRecords.getBirthdate(), medicalRecords.getMedications().toString(), medicalRecords.getAllergies().toString()));
     }
-    @PutMapping(value="/firestation", consumes = {"application/json"}) //TODO -- REVIEW THE BUSINESS LOGIC.
+    @PutMapping(value="/firestation", consumes = {"application/json"})
     public void firestationUpdateRecord(
             @RequestBody String firestation
     ) throws IOException {
@@ -214,32 +210,33 @@ public class EndPointsHandlerController {
 
     //ADD OPERATION FOR EACH ENTITY - POST
     @PostMapping(value="/medicalRecord", consumes = {"application/json"})
-    public void medicalSaveRecord(
+    public ResponseEntity<?> medicalSaveRecord(
             @RequestBody String medical
     ) throws IOException {
         ObjectMapper mapper = new ObjectMapper();
         MedicalRecords medicalRecords = mapper.readValue(medical, MedicalRecords.class);
-        //modelDTOImpl = new ModelDTOImpl();
         jsonData.saveAll(modelDTOImpl.addRecord(3, medicalRecords.getFirstName(), medicalRecords.getLastName(), medicalRecords.getBirthdate(), medicalRecords.getMedications().toString(), medicalRecords.getAllergies().toString()));
+        return new ResponseEntity<>(medical, HttpStatus.CREATED);
     }
     @PostMapping(value="/firestation", consumes = {"application/json"})
-    public void firestationSaveRecord(
+    public ResponseEntity<?> firestationSaveRecord(
             @RequestBody String firestation
     ) throws IOException {
         ObjectMapper mapper = new ObjectMapper();
         Firestations firestations = mapper.readValue(firestation, Firestations.class);
-        //modelDTOImpl = new ModelDTOImpl();
-        jsonData.saveAll(modelDTOImpl.addRecord(2, firestations.getAddress(), String.valueOf(firestations.getStation())));
+        jsonData.saveAll( modelDTOImpl.addRecord(2, firestations.getAddress(), String.valueOf(firestations.getStation())));
+        return new ResponseEntity<>(firestation, HttpStatus.CREATED);
     }
 
     @PostMapping(value="/person", consumes = {"application/json"})
-    public void personSaveRecord(
+    public ResponseEntity<?> personSaveRecord(
             @RequestBody String individual
     ) throws IOException {
         ObjectMapper mapper = new ObjectMapper();
+        URI location = URI.create("/person/");
         Persons person = mapper.readValue(individual, Persons.class);
-        //modelDTOImpl = new ModelDTOImpl();
         jsonData.saveAll(modelDTOImpl.addRecord(1, person.getFirstName(), person.getLastName(), person.getAddress(), person.getCity(), person.getZip(), person.getPhone(), person.getEmail()));
+        return new ResponseEntity<>(individual, HttpStatus.CREATED);
     }
 
 }
