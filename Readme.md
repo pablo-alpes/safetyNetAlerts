@@ -19,18 +19,16 @@ Net Alerts API.
     * [Flood Information](#flood-information)
     * [Phone Alert](#phone-alert)
   * [CRUD (Update, Delete, Add)](#crud-update-delete-add)
-    * 
   * [Response Format](#response-format)
   * [Error Handling](#error-handling)
   * [Getting Help](#getting-help)
 <!-- TOC -->
 
 ## Base URL
-https://api.safetynetalerts.com:8080
+To use the API you can use it whether by any client or by the UI.
+
 ### Authentication
-* Authorization: Bearer your_api_token 
-* The Safety Net Alerts API uses token-based authentication. To authenticate your requests, include your API token in the
-Authorization header of your HTTP requests.
+No security credentials are needed. All users with the link will have access.
 
 ## Available endpoints
 ## GET
@@ -85,15 +83,77 @@ Authorization header of your HTTP requests.
   * station (integer): The firestation number for which to retrieve phone numbers.
 * Response: JSON array containing the phone numbers.
 
-## CRUD (Update, Delete, Add)
-Under development
+## CRUD (Update, Delete, Add) Operations
+The Safety Alerts API also supports CRUD (Create, Read, Update, Delete) operations for managing various entities such as people, medical records, and firestations.
+
+##DELETE Operations
+### /person/{firstName}&{lastName}
+* Description: Delete a person's record by their first name and last name.
+* Method: DELETE
+* Parameters:
+ * firstName (String): First name of the person to delete
+ * lastName (String): Last name of the person to delete
+* Action: Deletes the person's record from the database.
+
+### /medicalRecord/{firstName}&{lastName}
+Description: Delete a medical record by the person's first name and last name.
+Method: DELETE
+Parameters:
+firstName (String): First name of the person whose medical record to delete
+lastName (String): Last name of the person whose medical record to delete
+Action: Deletes the medical record from the database.
+
+### /firestation/{param}
+
+Description: Delete a firestation record by its parameter.
+Method: DELETE
+Parameters:
+param (String): Parameter for identifying the firestation record to delete
+Action: Deletes the firestation record from the database.
+
+## UPDATE Operations (PUT)
+### /medicalRecord
+Description: Update a medical record.
+Method: PUT
+Request Body: JSON object representing the updated medical record
+Action: Updates the medical record in the database.
+###/firestation
+Description: Update a firestation record.
+Method: PUT
+Request Body: JSON object representing the updated firestation record
+Action: Updates the firestation record in the database.
+
+### /person
+
+Description: Update a person's record.
+Method: PUT
+Request Body: JSON object representing the updated person's record
+Action: Updates the person's record in the database.
+## ADD Operation (POST)
+### /medicalRecord
+* Description: Add a new medical record.
+* Method: POST
+* Request Body: JSON object representing the new medical record
+* Action: Adds the new medical record to the database.
+### /firestation
+
+* Description: Add a new firestation record.
+* Method: POST
+* Request Body: JSON object representing the new firestation record
+* Action: Adds the new firestation record to the database.
+
+### /person
+* Description: Add a new person's record.
+* Method: POST
+* Request Body: JSON object representing the new person's record
+* Action: Adds the new person's record to the database.
 
 ## Response Format
 The API returns data in JSON format. Each endpoint's response is documented in the respective endpoint description.
 
 ## Error Handling
 The API uses standard HTTP status codes to indicate the success or failure of a request. In case of an error, additional
-information may be provided in the response body.
+information may be provided in the log.
 
 ## Getting Help
 If you have any questions, concerns, or need assistance, please contact our support team at support@safetynetalerts.com.
