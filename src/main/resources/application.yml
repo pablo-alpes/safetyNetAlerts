@@ -1,0 +1,4 @@
+logging:
+  level:
+    org.springframework.web.servlet.mvc.method.annotation.ServletInvocableHandlerMethod: DEBUG
+    org.springframework.boot.actuate.trace.http.HttpTraceRepository: DEBUG
