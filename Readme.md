@@ -1,5 +1,5 @@
 ### Safety Net Alerts API Documentation
-* Date: 14/03/2024
+* Date: 28/03/2024
 * Author: Pablo Miranda
 
 Welcome to the Safety Net Alerts API documentation. This document provides an overview of the available endpoints,
@@ -29,6 +29,10 @@ To use the API you can use it whether by any client or by the UI.
 
 ### Authentication
 No security credentials are needed. All users with the link will have access.
+
+## Records coherency needed
+Once a person is deleted, is required also their medical records shall be deleted to ensure coherency on the data model.
+Likewise, if medical records are deleted, they need to be updated accordingly.
 
 ## Available endpoints
 ## GET
